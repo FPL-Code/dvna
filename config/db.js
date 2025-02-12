@@ -6,3 +6,9 @@ module.exports = {
   port: process.env.MYSQL_PORT || 3306,
   dialect: 'mysql'
 }
+
+module.exports = {
+  "api_key": "12345-abcde-67890-fghij",
+  "db_password": "password123",
+  "access_token": "98765-xyz987-12345-abcde"
+}
