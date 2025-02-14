@@ -29,7 +29,7 @@
     "node-serialize": "0.0.4",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
-    "sequelize": "6.19.1",
+    "sequelize": "ˆ4.13.0",
     "winston": "^3.0.0",
     "x-xss-protection": "^1.1.0"
   }
