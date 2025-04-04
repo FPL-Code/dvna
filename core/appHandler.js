@@ -215,15 +215,26 @@ module.exports.listUsersAPI = function (req, res) {
 module.exports.bulkProductsLegacy = function (req,res){
 	// TODO: Deprecate this soon
 	if(req.files.products){
-		var products = serialize.unserialize(req.files.products.data.toString('utf8'))
-		products.forEach( function (product) {
-			var newProduct = new db.Product()
-			newProduct.name = product.name
-			newProduct.code = product.code
-			newProduct.tags = product.tags
-			newProduct.description = product.description
-			newProduct.save()
-		})
+		try {
+			var products = JSON.parse(req.files.products.data.toString('utf8'));
+			if (!Array.isArray(products)) {
+				throw new Error('Invalid products format');
+			}
+			products.forEach(function (product) {
+				if (typeof product.name !== 'string' || typeof product.code !== 'string' || !Array.isArray(product.tags) || typeof product.description !== 'string') {
+					throw new Error('Invalid product format');
+				}
+				var newProduct = new db.Product();
+				newProduct.name = product.name;
+				newProduct.code = product.code;
+				newProduct.tags = product.tags;
+				newProduct.description = product.description;
+				newProduct.save();
+			});
+			res.redirect('/app/products');
+		} catch (error) {
+			res.render('app/bulkproducts', { messages: { danger: 'Invalid file format' }, legacy: true });
+		}
 		res.redirect('/app/products')
 	}else{
 		res.render('app/bulkproducts',{messages:{danger:'Invalid file'},legacy:true})
