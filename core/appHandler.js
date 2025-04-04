@@ -2,7 +2,7 @@ var db = require('../models')
 var bCrypt = require('bcrypt')
 const exec = require('child_process').exec;
 var mathjs = require('mathjs')
-var libxmljs = require("libxmljs");
+var sax = require("sax");
 var serialize = require("node-serialize")
 const Op = db.Sequelize.Op
 
@@ -232,17 +232,44 @@ module.exports.bulkProductsLegacy = function (req,res){
 
 module.exports.bulkProducts =  function(req, res) {
 	if (req.files.products && req.files.products.mimetype=='text/xml'){
-		var products = libxmljs.parseXmlString(req.files.products.data.toString('utf8'), {noblanks:true})
-		products.root().childNodes().forEach( product => {
-			var newProduct = new db.Product()
-			newProduct.name = product.childNodes()[0].text()
-			newProduct.code = product.childNodes()[1].text()
-			newProduct.tags = product.childNodes()[2].text()
-			newProduct.description = product.childNodes()[3].text()
-			newProduct.save()
-		})
-		res.redirect('/app/products')
+		var parser = sax.parser(true, { trim: true, normalize: true });
+		var products = [];
+		var currentProduct = null;
+		
+		parser.onopentag = function (node) {
+			if (node.name === "product") {
+				currentProduct = {};
+			} else if (currentProduct) {
+				currentProduct[node.name] = "";
+			}
+		};
+		
+		parser.ontext = function (text) {
+			if (currentProduct) {
+				var keys = Object.keys(currentProduct);
+				currentProduct[keys[keys.length - 1]] += text;
+			}
+		};
+		
+		parser.onclosetag = function (name) {
+			if (name === "product" && currentProduct) {
+				products.push(currentProduct);
+				currentProduct = null;
+			}
+		};
+		
+		parser.write(req.files.products.data.toString('utf8')).close();
+		
+		products.forEach(product => {
+			var newProduct = new db.Product();
+			newProduct.name = product.name;
+			newProduct.code = product.code;
+			newProduct.tags = product.tags;
+			newProduct.description = product.description;
+			newProduct.save();
+		});
+		res.redirect('/app/products');
 	}else{
-		res.render('app/bulkproducts',{messages:{danger:'Invalid file'},legacy:false})
+		res.render('app/bulkproducts',{messages:{danger:'Invalid file'},legacy:false});
 	}
 }
