@@ -14,16 +14,14 @@
                 <a href='/app/modifyproduct' class='btn btn-primary'>Add Product</a>
             </span>
         </h2>
-
-        <% if (output&&output.searchTerm) { %>
+<% if (output&&output.searchTerm) { %>
             <p class="bg-success">
-                var products = libxmljs.parseXmlString(req.files.products.data.toString('utf8'), {noent:true,noblanks:true})
+                Listing products with <strong>search query: </strong> <%- output.searchTerm %>
+Cross-site scripting vulnerability due to .
+CodeQL 
                 &nbsp; &nbsp;
                 <small><a href="/app/products">
                     <i class="fa fa-remove"></i> Clear
-                </a></small>
-            </p>
-        <% } %>
 
         <% if (messages.success) { %>
             <div class="alert alert-success"><%=messages.success%></div>
