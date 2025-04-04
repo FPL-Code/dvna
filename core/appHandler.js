@@ -1,4 +1,5 @@
 var db = require('../models')
+const escapeHtml = require('escape-html');
 var bCrypt = require('bcrypt')
 const exec = require('child_process').exec;
 var mathjs = require('mathjs')
@@ -64,9 +65,10 @@ module.exports.productSearch = function (req, res) {
 			}
 		}
 	}).then(products => {
+		const escapeHtml = require('escape-html');
 		output = {
 			products: products,
-			searchTerm: req.body.name
+			searchTerm: escapeHtml(req.body.name)
 		}
 		res.render('app/products', {
 			output: output
