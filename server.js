@@ -17,14 +17,14 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(fileUpload());
 
 // Enable for Reverse proxy support
-// app.set('trust proxy', 1) 
+app.set('trust proxy', 1) 
 
 // Intialize Session
 app.use(session({
   secret: 'keyboard cat',
   resave: true,
   saveUninitialized: true,
-  cookie: { secure: false }
+  cookie: { secure: true }
 }))
 
 // Initialize Passport
